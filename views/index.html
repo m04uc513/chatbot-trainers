@@ -1,0 +1,114 @@
+<!-- This is a static file -->
+<!-- served from your routes in server.js -->
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A cool thing made with Glitch">
+
+    <title>Welcome to Glitch!</title>
+    <!-- import the webpage's stylesheet -->
+    <!-- <link rel="stylesheet" href="/style.css"> -->
+    
+    <!-- import the webpage's client-side javascript file -->
+    <!-- <script src="/client.js" defer></script> -->
+  </head>
+  <body>
+    <header>
+      <h2>Key/Value Store Demo</h2>
+    </header>
+
+    <main>
+      <p>番号を入力してください</p>
+      
+      <div>
+        <input type="text" id="key-text">
+      </div>
+      <br>
+      <div>
+        <button id="get-button">GET</button>
+        <button id="put-button">PUT</button>
+        <button id="check-button">CHECK</button>
+      </div>
+      <br>
+      <div>
+        <textarea id="value-text" cols="80" rows="20">
+        </textarea>
+      </div>
+      
+    </main>
+
+    <footer>
+    </footer>
+  </body>
+  <script>
+    const keyText = document.getElementById('key-text');
+    const valueText = document.getElementById('value-text');
+
+    const getButton = document.getElementById('get-button');
+    const putButton = document.getElementById('put-button');
+    const checkButton = document.getElementById('check-button');
+
+    async function checkButtonClick() {
+      console.log("CHECK Button Clicked");
+      //console.log("key: %s", keyText.value);
+      var data = { key: keyText.value };
+      const res = await fetch("/check", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      const response = await res.json();
+      valueText.value = response.message;
+      //console.log(`message  ${response.message}`);
+    }
+
+    async function getButtonClick() {
+      console.log("GET Button Clicked");
+      //console.log("key: %s", keyText.value);
+      var data = { key: keyText.value };
+      //if (data.key.length == 0) data.key = 'blank';
+      const res = await fetch("/get", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      const response = await res.json();
+      valueText.value = JSON.stringify(JSON.parse(response.response), null, 2);
+      //console.log(`message  ${response.message}`);
+      //onsole.log(`reqest   ${response.reqest}`);
+      //console.log(`response ${response.response}`);
+    }
+
+    async function putButtonClick(){
+      console.log("PUT Button Clicked");
+      var value = JSON.stringify(JSON.parse(valueText.value));
+      //console.log("key: %s", keyText.value);
+      console.log("value: %s", value);
+      var data = {
+        key: keyText.value,
+        val: value
+      };
+      if (data.key.length == 0) data.key = 'blank';
+      const res = await fetch("/put", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      const response = await res.json();
+      console.log(`message  ${response.message}`);
+    }
+
+    getButton.addEventListener('click', getButtonClick);
+    putButton.addEventListener('click', putButtonClick);
+    checkButton.addEventListener('click', checkButtonClick);
+  </script>
+</html>
