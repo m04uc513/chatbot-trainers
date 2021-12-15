@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>Vue.js App</title>
+  <style type="text/css">
+    .header select {
+      width: 90px;
+      font-size: 30px;
+    }
+    .rules input {
+        width: 300px;
+    }
+  </style>
+</head>
+<script src="https://cdn.jsdelivr.net/vue/latest/vue.min.js"></script>
+<script src="./nGrimm021.js"></script>
+<body>
+  <div id="app">
+    <div class="header">
+      <h4>
+      <select v-model.number="section" v-on:change="handleSelect(section, $event)">
+        <option disabled="disabled">選択して下さい</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+        <option value="11">11</option>
+        <option value="12">12</option>
+        <option value="13">13</option>
+        <option value="14">14</option>
+        <option value="15">15</option>
+        <option value="16">16</option>
+        <option value="17">17</option>
+        <option value="18">18</option>
+        <option value="19">19</option>
+      </select>
+      &nbsp;&nbsp;
+      {{ Grimm021[section].subtitle }}
+      </h4>
+    </div>
+    <div>
+      <p>{{ Grimm021[section].paragraph }}</p>
+    </div>
+    <div class="rules">
+      <p>
+        メッセージ:&nbsp;
+        <input v-model="message">
+        <button v-on:click="handleAddClick">＋</button>
+      </p>
+      <table>
+        <tbody>
+          <tr v-for="item in reaction" v-bind:key="item.id" v-on:>
+            <td>{{item.c}}</td>
+            <td>{{item.r}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+<script>
+  var app = new Vue({
+    el: '#app',
+    data: {
+      section: 1,
+      message: '',
+      reaction: [
+          { id: 0, c: "こんにちは", r: "こんにちは" },
+          { id: 1, c: "さよなら", r: "またあした" }
+      ]
+    },
+    methods: {
+      handleSelect: function(sec, event) {
+        console.log("# handleSelect");
+        console.log(sec);
+        console.log(this.section);
+        //console.log(event);
+      },
+      handleAddClick: function() {
+        console.log("# handleAddClick");
+      }
+    }
+  });
+</script>
+</html>

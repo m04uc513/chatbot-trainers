@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Vue.js</title>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+<div id="app">
+    <table class="table table-bordered">
+        <thead  class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>ユーザ名</th>
+                <th>E-mail</th>
+                <th>削除</th>
+            </tr>
+        </thead>
+        <tbody>
+          <tr 
+            is="user-table" 
+            v-for="(user,index) in users" 
+            v-bind:user="user" 
+            v-bind:key="user.id" 
+            v-bind:index="index" 
+            v-on:from-child="deleteRow"
+            v-on:update-cell="updateCell"
+          ></tr>
+        </tbody>
+    </table>
+</div>
+<script>
+    Vue.component('user-table', {
+      template: `<tr><td>{{ user.id }}</td>
+                 <td v-if="!isEditName" v-on:dblclick="inputName">{{ user.name }}</td>
+                 <td v-else><input type="text" class="form-control" v-bind:value="user.name" v-on:blur="updateName($event, user.id)" ref="name"></td>
+                 <td v-if="!isEditEmail" v-on:dblclick="inputEmail">{{ user.email }}</td>
+                 <td v-else><input type="text" class="form-control" v-bind:value="user.email" v-on:blur="updateEmail($event,user.id)" ref="email"></td>
+                 <td><button class="btn btn-danger" v-on:click="deleteRow(user.id,index)">削除</button></td>
+                 </tr>`,
+      props : ['user','index'],
+      data: function() {
+          return {
+            isEditName: false,
+            isEditEmail: false,
+          };
+      },
+      methods: {
+        inputName: function () {
+          this.isEditName = true;
+          this.$nextTick(() => {
+            this.$refs.name.focus();
+          });
+        },
+        inputEmail: function () {
+          this.isEditEmail = true;
+          this.$nextTick(() => {
+            this.$refs.email.focus();
+          });
+        },
+        updateName: function(event, id){
+          //console.log("# updateName (child)");
+          var data =  { "id": id, "name": event.target.value };
+          //console.log(data);
+          this.isEditName = false;
+          this.$emit('update-cell', data);
+        },
+        updateEmail: function (event, id) {
+          //console.log("# updateEmail (child)");
+          var data =  { "id": id, "email": event.target.value };
+          //console.log(data);
+          this.isEditEmail = false;
+          this.$emit('update-cell', data);
+        },
+        deleteRow: function(id, index) {
+          //console.log("# deleteRow (child)");
+          this.$emit('from-child', index);
+        }
+      }
+    });
+    
+    var app = new Vue({
+      el: '#app',
+      data: {
+        users: [
+          { id: 1, name: '藤田昭人', email: 'akito_fujita@mvg.biglobe.ne.jp' },
+          { id: 2, name: '大屋浩紀', email: '0y4.h1r0n0r1@gmail.com' },
+          { id: 3, name: '中川一眞', email: 'ka-nakagawa@sangyokoyo.or.jp' },
+          { id: 4, name: '藤田昭男', email: 'fujio.a05@gmail.com' },
+          { id: 5, name: '深津佐知子', email: 'cgja84h4ummp1tt62p9rs@docomo.ne.jp' },
+          { id: 6, name: '鈴木一也', email: 'kazuya.suzuki@linecorp.com' }
+        ]
+      },
+      methods: {
+        updateCell(updateUser) {
+          //console.log("# updateCell (parent)");
+          //console.log(updateUser);
+          const user = this.users.find((user) => {
+            return user.id === updateUser.id;
+          });
+          //console.log(user);
+          Object.assign(user, updateUser);
+        },
+        deleteRow: function (index) {
+          //console.log("# deleteRow (parent)");
+          this.$delete(this.users, index);
+        }
+      }
+    });
+    </script> 
+</body>
+</html>
