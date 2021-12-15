@@ -17,8 +17,8 @@ app.use(express.static("public"));
 
 
 // init sqlite db
-const db = require("./.data/train_data.js");
-db.init("./train_data.db");
+const db = require("./train_data.js");
+db.init("./.data/train_data.db");
 
 
 // http://expressjs.com/en/starter/basic-routing.html

@@ -60,13 +60,9 @@ function each(sql, func) {
 	});
 }
 
-/*
-async function main()
+async function init(name)
 {
-
-  var val = '[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}]';
-
-  const name = 'train_data.db'
+  console.log("kvs.init("+name+")");
   var exists = fs.existsSync(name);
   db = new sqlite3.Database(name);
 
@@ -80,26 +76,7 @@ async function main()
         'INSERT INTO Rules (trainer,rule) VALUES (?,?)', account[i], val
       );
     }
-}
-  
-  var row = await all("SELECT * from Rules");
-  if (row) {
-    console.log(row);
-    //for (var i = 0; i < row.length; i++) {
-      //console.log("%d:\t%s\t%s", i, row[i].trainer, row[i].rule);
-    //}
   }
-}
-
-main();
-*/
-
-async function init(name)
-{
-  console.log("kvs.init("+name+")");
-  db = new sqlite3.Database(name);
-  //var row = await all("SELECT * from Rules");
-  //console.log(row);
 }
 
 async function checkTrainer(key, func)
