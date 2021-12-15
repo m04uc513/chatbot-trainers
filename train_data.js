@@ -110,6 +110,8 @@ async function init(name)
   var exists = fs.existsSync(name);
   db = new sqlite3.Database(name);
 
+  var val = '[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}]';
+  
   if (!exists) {
     await run(
       "CREATE TABLE Rules (id INTEGER PRIMARY KEY AUTOINCREMENT, trainer TEXT, rule TEXT)"
