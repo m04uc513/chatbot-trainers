@@ -69,6 +69,19 @@ app.post("/put", (reqest, response) => {
   var val = reqest.body.val;
   console.log("put: key = %s", key);
   console.log("put: val = %s", val);
+  db.putRule(key, val, (rows) => {
+    response.send({
+      message: "success"
+    });  
+  });
+});
+
+// kvs.set
+app.post("/set", (reqest, response) => {
+  var key = reqest.body.key;
+  var val = reqest.body.val;
+  console.log("set: key = %s", key);
+  console.log("set: val = %s", val);
   db.setRule(key, val, (rows) => {
     response.send({
       message: "success"

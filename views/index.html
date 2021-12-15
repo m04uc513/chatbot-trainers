@@ -30,6 +30,7 @@
       <div>
         <button id="get-button">GET</button>
         <button id="put-button">PUT</button>
+        <button id="set-button">SET</button>
         <button id="check-button">CHECK</button>
       </div>
       <br>
@@ -49,6 +50,7 @@
 
     const getButton = document.getElementById('get-button');
     const putButton = document.getElementById('put-button');
+    const setButton = document.getElementById('set-button');
     const checkButton = document.getElementById('check-button');
 
     async function checkButtonClick() {
@@ -107,8 +109,29 @@
       console.log(`message  ${response.message}`);
     }
 
+    async function setButtonClick(){
+      console.log("SET Button Clicked");
+      var value = JSON.stringify(JSON.parse(valueText.value));
+      //console.log("key: %s", keyText.value);
+      console.log("value: %s", value);
+      var data = {
+        key: keyText.value,
+        val: value
+      };
+      const res = await fetch("/set", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      const response = await res.json();
+      console.log(`message  ${response.message}`);
+    }
+
     getButton.addEventListener('click', getButtonClick);
     putButton.addEventListener('click', putButtonClick);
+    setButton.addEventListener('click', setButtonClick);
     checkButton.addEventListener('click', checkButtonClick);
   </script>
 </html>

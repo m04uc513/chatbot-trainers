@@ -137,13 +137,20 @@ async function getRule(key, func)
   func(rows);
 }
 
-async function setRule(key, val, func)
+async function putRule(key, val, func)
 {
   var rows = await run2('UPDATE Rules SET rule = ? WHERE trainer = ?', val ,key);
+  func(rows);
+}
+
+async function setRule(key, val, func)
+{
+  var rows = await run2('INSERT INTO Rules (trainer,rule) VALUES (?,?)',key, val);
   func(rows);
 }
 
 module.exports.init = init;
 module.exports.checkTrainer = checkTrainer;
 module.exports.getRule = getRule;
+module.exports.putRule = putRule;
 module.exports.setRule = setRule;
