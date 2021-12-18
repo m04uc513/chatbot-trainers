@@ -10,8 +10,10 @@
 
     <title>Welcome to Glitch!</title>
     <!-- import the webpage's stylesheet -->
-    <link rel="stylesheet" href="/style.css">
-    
+    <!-- <link rel="stylesheet" href="/style.css"> -->
+    <style>
+      input.hoge { width: 25%; }
+    </style>
     <!-- import the webpage's client-side javascript file -->
     <!-- <script src="/client.js" defer></script> -->
   </head>
@@ -24,15 +26,41 @@
       <p>番号を入力してください</p>
       
       <div>
-        <input type="text" id="number-text">
+        <input type="text" id="number-text" class=hoge>
       </div>
       <br>
       <div>
-        <button id="edit-rulte">Edit Rule</button>
+        <button id="edit-rule">Edit Rule</button>
         <button id="reading-aloud">Reading Aloud</button>
       </div>
       
     </main>
   </body>
-  <script></script>
+  <script>
+    const numberText = document.getElementById('number-text');
+
+    const editRule = document.getElementById('edit-rule');
+    const readingAloud = document.getElementById('reading-aloud');
+
+    //localStorage.setItem('myCat', 'Tom');
+    //var cat = localStorage.getItem("myCat")
+    //localStorage.removeItem("myCat");
+
+    async function editRuleClick()
+    {
+      console.log("Edit Rule Button Clicked");
+      localStorage.setItem('trainer', numberText.value);
+      location.href = "/edit-rule.html";
+    }
+
+    async function readingAloudClick()
+    {
+      console.log("Reading Aloud Button Clicked");
+      localStorage.setItem('trainer', numberText.value);
+      location.href = "/reading-aloud.html";
+    }
+
+    editRule.addEventListener('click', editRuleClick);
+    readingAloud.addEventListener('click', readingAloudClick);
+  </script>
 </html>
