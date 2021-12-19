@@ -97,7 +97,49 @@ button {
     <div>
       <H3>{{ story[section].subtitle }}</H3>
       <p>{{ story[section].paragraph }}</p>
-      <p>{{ JSON.stringify(rules[section]) }}</p>
+    </div>
+    <div>
+      <table>
+        <tr>
+          <th width="10">MSG</th>
+          <td width="90%"></td>
+        </tr>
+      </table>
+      <table>
+        <tr>
+          <th width="10%" rowspan="2">1</th>
+          <th width="10%">Q</th>
+          <td width="80%"></td>
+        </tr>
+        <tr>
+          <th>A</th>
+          <td></td>
+        </tr>
+        <tr>
+          <th rowspan="2">2</th>
+          <th>Q</th>
+          <td></td>
+        </tr>
+        <tr>
+          <th>A</th>
+          <td></td>
+        </tr>
+        <tr>
+          <th rowspan="2">3</th>
+          <th>Q</th>
+          <td></td>
+        </tr>
+        <tr>
+          <th>A</th>
+          <td></td>
+        </tr>
+      </table>
+      <table>
+        <tr>
+          <th width="10%">NCA</th>
+          <td width="90%"></td>
+        </tr>
+      </table>
     </div>
   </div>
 </body>
