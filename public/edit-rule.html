@@ -13,44 +13,12 @@
   max-width: 640px;
   margin: 0 auto;
 }
-table {
+.table1 {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
 }
-thead th {
-  border-bottom: 2px solid #0099e4; /*#d31c4a */
-  color: #0099e4;
-}
-th,
-th {
-  padding: 0 8px;
-  line-height: 40px;
-}
-thead th.id {
-  width: 50px;
-}
-thead th.state {
-  width: 100px;
-}
-thead th.button {
-  width: 60px;
-}
-tbody td.button, tbody td.state {
-  text-align: center;
-}
-tbody tr td,
-tbody tr th {
-  border-bottom: 1px solid #ccc;
-  transition: all 0.4s;
-}
-tbody tr.done td,
-tbody tr.done th {
-  background: #f8f8f8;
-  color: #bbb;
-}
-tbody tr:hover td,
-tbody tr:hover th {
-  background: #f4fbff;
+.table1 td {
+  border: 1px solid gray;
 }
 button {
   border: none;
@@ -61,6 +29,10 @@ button {
   color: #fff;
   cursor: pointer;
 }
+.select1 {
+  width: 50px;
+  font-size: 18px;
+}
   </style>
 <!-- from main.js of cr-vue/codes/turorial-todo -->
 <!-- <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
@@ -70,7 +42,9 @@ button {
 <body>
   <div id="app">
     <div>
-      <select v-model.number="section" v-on:change="handleSelect(section, $event)">
+      <select class="select1"
+        v-model.number="section"
+        v-on:change="handleSelect(section, $event)">
         <option disabled="disabled">選択して下さい</option>
         <option value="1">1</option>
         <option value="2">2</option>
@@ -91,7 +65,6 @@ button {
         <option value="17">17</option>
         <option value="18">18</option>
         <option value="19">19</option>
-        <option value="0">0</option>
       </select>
     </div>
     <div>
@@ -99,45 +72,95 @@ button {
       <p>{{ story[section].paragraph }}</p>
     </div>
     <div>
-      <table>
+      <table class="table1">
         <tr>
           <th width="10">MSG</th>
-          <td width="90%"></td>
+          <td width="90%" 
+              v-if="focus != 0" 
+              v-on:dblclick="inputMessage(0)">{{ message[0] }}</td>
+          <td width="90%" v-else>
+            <input type="text" size="78" 
+              v-bind:value="message[0]" 
+              v-on:blur="updateMessage($event)">
+          </td>
         </tr>
       </table>
-      <table>
+      <table class="table1">
         <tr>
           <th width="10%" rowspan="2">1</th>
-          <th width="10%">Q</th>
-          <td width="80%"></td>
+          <th width="5%">Q</th>
+          <td width="85%"
+              v-if="focus != 1" 
+              v-on:dblclick="inputMessage(1)">{{ message[1] }}</td>
+          <td width="85%" v-else>
+            <input type="text" size="74" 
+              v-bind:value="message[1]" 
+              v-on:blur="updateMessage($event)">
+          </td>
         </tr>
         <tr>
           <th>A</th>
-          <td></td>
+          <td width="85%"
+              v-if="focus != 2" 
+              v-on:dblclick="inputMessage(2)">{{ message[2] }}</td>
+          <td width="85%" v-else>
+            <input type="text" size="74" 
+              v-bind:value="message[2]" 
+              v-on:blur="updateMessage($event)">
         </tr>
         <tr>
           <th rowspan="2">2</th>
           <th>Q</th>
-          <td></td>
+          <td width="85%"
+              v-if="focus != 3" 
+              v-on:dblclick="inputMessage(3)">{{ message[3] }}</td>
+          <td width="85%" v-else>
+            <input type="text" size="74" 
+              v-bind:value="message[3]" 
+              v-on:blur="updateMessage($event)">
         </tr>
         <tr>
           <th>A</th>
-          <td></td>
+          <td width="85%"
+              v-if="focus != 4" 
+              v-on:dblclick="inputMessage(4)">{{ message[4] }}</td>
+          <td width="85%" v-else>
+            <input type="text" size="74" 
+              v-bind:value="message[4]" 
+              v-on:blur="updateMessage($event)">
         </tr>
         <tr>
           <th rowspan="2">3</th>
           <th>Q</th>
-          <td></td>
+          <td width="85%"
+              v-if="focus != 5" 
+              v-on:dblclick="inputMessage(5)">{{ message[5] }}</td>
+          <td width="85%" v-else>
+            <input type="text" size="74" 
+              v-bind:value="message[5]" 
+              v-on:blur="updateMessage($event)">
         </tr>
         <tr>
           <th>A</th>
-          <td></td>
+          <td width="85%"
+              v-if="focus != 6" 
+              v-on:dblclick="inputMessage(6)">{{ message[6] }}</td>
+          <td width="85%" v-else>
+            <input type="text" size="74" 
+              v-bind:value="message[6]" 
+              v-on:blur="updateMessage($event)">
         </tr>
       </table>
-      <table>
+      <table class="table1">
         <tr>
           <th width="10%">NCA</th>
-          <td width="90%"></td>
+          <td width="90%" 
+              v-if="focus != 7" 
+              v-on:dblclick="inputMessage(7)">{{ message[7] }}</td>
+          <td width="90%" v-else>
+            <input type="text" size="78" 
+              v-bind:value="message[7]" 
+              v-on:blur="updateMessage($event)">
         </tr>
       </table>
     </div>
@@ -148,25 +171,24 @@ button {
     el: '#app',
     data: {
       section: 1,
+      prevsec: 1,
+      focus: 8,
+      MSG: 'メッセージなし',
+      message: ['', '', '', '', '', '', '', ''],
       trainer: localStorage.getItem('trainer'),
       story: Grimm021,
-      rules: ''
+      rules: []
     },
     async mounted() {
-        var args = { key: localStorage.getItem('trainer') };
-        var res = await this.fetchScript(args);
-        console.log(JSON.stringify(res, null, 2));
-        if (res.message == 'success') {
-          this.rules = JSON.parse(res.response);
-        }
-      },
+      var args = { key: localStorage.getItem('trainer') };
+      var res = await this.fetchScript(args);
+      //console.log(JSON.stringify(res, null, 2));
+      if (res.message != 'success') return;
+      this.rules = JSON.parse(res.response);
+      console.log("message: ");
+      console.log(this.message);
+    },
     methods: {
-      handleSelect: function(sec, event) {
-        //console.log("# handleSelect");
-        //console.log(sec);
-        //console.log(this.section);
-        //console.log(event);
-      },
       fetchScript: async function(data) {
         const res = await fetch("/get", {
           method: 'POST',
@@ -177,6 +199,24 @@ button {
         });
         const response = await res.json();
         return(response);
+      },
+      handleSelect: function(sec, event) {
+        console.log("# handleSelect");
+        //console.log("sec: "+sec);
+        console.log("section: "+this.section);
+        console.log("prevsec: "+this.prevsec);
+        this.prevsec = this.section;
+      },
+      inputMessage: function(id) {
+        console.log("# inputMessage");
+        console.log("id: "+id);
+        this.focus = id;
+      },
+      updateMessage: function(event) {
+        console.log("# updateMessage");
+        console.log(event.target.value);
+        this.message[this.focus] = event.target.value;
+        this.focus = 8;
       }
     }
   });
