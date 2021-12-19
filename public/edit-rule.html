@@ -62,25 +62,81 @@ button {
   cursor: pointer;
 }
   </style>
-</head>
 <!-- from main.js of cr-vue/codes/turorial-todo -->
 <!-- <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
 <script src="https://cdn.jsdelivr.net/vue/latest/vue.min.js"></script>
+</head>
 <script src="/nGrimm021.js"></script>
 <body>
   <div id="app">
-    
+    <div>
+      <select v-model.number="section" v-on:change="handleSelect(section, $event)">
+        <option disabled="disabled">選択して下さい</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+        <option value="11">11</option>
+        <option value="12">12</option>
+        <option value="13">13</option>
+        <option value="14">14</option>
+        <option value="15">15</option>
+        <option value="16">16</option>
+        <option value="17">17</option>
+        <option value="18">18</option>
+        <option value="19">19</option>
+        <option value="0">0</option>
+      </select>
+    </div>
+    <div>
+      <H3>{{ story[section].subtitle }}</H3>
+      <p>{{ story[section].paragraph }}</p>
+      <p>{{ JSON.stringify(rules[section]) }}</p>
+    </div>
   </div>
-  <header>
-    <h2>Edit Rule</h2>
-  </header>
-  <main>
-    <p id="trainer-text"></p>
-  </main>
 </body>
 <script>
-  const trainerText = document.getElementById('trainer-text');
-  var number = localStorage.getItem("trainer");
-  trainerText.innerHTML = number;
+  var app = new Vue({
+    el: '#app',
+    data: {
+      section: 1,
+      trainer: localStorage.getItem('trainer'),
+      story: Grimm021,
+      rules: ''
+    },
+    async mounted() {
+        var args = { key: localStorage.getItem('trainer') };
+        var res = await this.fetchScript(args);
+        console.log(JSON.stringify(res, null, 2));
+        if (res.message == 'success') {
+          this.rules = JSON.parse(res.response);
+        }
+      },
+    methods: {
+      handleSelect: function(sec, event) {
+        //console.log("# handleSelect");
+        //console.log(sec);
+        //console.log(this.section);
+        //console.log(event);
+      },
+      fetchScript: async function(data) {
+        const res = await fetch("/get", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+        const response = await res.json();
+        return(response);
+      }
+    }
+  });
 </script>
 </html>
