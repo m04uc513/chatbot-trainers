@@ -37,7 +37,8 @@
 <body>
   <div id="app">
     <div>
-      <button id="save-button">保存</button>
+      <button id="save-button"
+        v-on:click="handleSaveRules">保存</button>
       <select class="select1"
         v-model.number="section"
         v-on:change="handleSelect(section, $event)">
@@ -172,8 +173,9 @@
     </div>
     <hr>
     <div>
-      <button id="play-all-button">全発話</button>
-      <button id="play-button">発話</button>
+      <button id="play-all-button"
+        v-on:click="speakStory">ストーリー</button>
+      <!-- <button id="play-button">発話</button> -->
     </div>
   </div>
 </body>
@@ -269,10 +271,6 @@
         elm.nca = this.message[7];
 
         this.rules[this.prevsec] = elm;
-        /*
-        var res = await this.putScript(this.trainer, JSON.stringify(this.rules));
-        console.log(res);
-        */
 
         this.message[0] = '';
         this.message[1] = '';
@@ -300,6 +298,51 @@
           }
         }
         this.prevsec = this.section;
+      },
+      handleSaveRules: async function() {
+        //console.log("# handleSaveRules");
+        var res = await this.putScript(this.trainer, JSON.stringify(this.rules));
+        //console.log(res);
+      },
+      /*
+async function wrapper(){
+  var text = "sen ten ce one. sen ten ce two. sen ten ce three.";
+  var result = text.match( /[^\.!\?]+[\.!\?]+/g );
+  var ssu = new SpeechSynthesisUtterance();
+  for(var i = 0; i<result.length; i++){
+    sentence = result[i];
+    ssu.text = sentence;
+    await new Promise(function(resolve) {
+      ssu.onend = resolve;
+      window.speechSynthesis.speak(ssu);
+    });
+  }
+wrapper();
+      */
+      /*
+        var uttr = new SpeechSynthesisUtterance(mesg);
+        uttr.name = "Kyoko";
+        uttr.lang = "ja-JP";
+        uttr.rate = 0.8;
+        uttr.pitch = 1.2;
+      */
+      speakStory: async function() {
+        //console.log("recite: "+this.story[this.section].recite.length);
+        var recite = this.story[this.section].recite;
+        var uttr = new SpeechSynthesisUtterance();
+        uttr.name = "Kyoko";
+        uttr.lang = "ja-JP";
+        uttr.rate = 0.8;
+        uttr.pitch = 1.2;
+        for (var i = 0; i < recite.length; i++) {
+          //console.log(i+": "+recite[i]);
+          var sentence = recite[i];
+          uttr.text = sentence;
+          await new Promise(function(resolve) {
+            uttr.onend = resolve;
+            window.speechSynthesis.speak(uttr);
+          });
+        }
       },
       inputMessage: function(id) {
         //console.log("# inputMessage");

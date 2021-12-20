@@ -30,8 +30,9 @@
       </div>
       <br>
       <div>
-        <button id="edit-rule">Edit Rule</button>
-        <button id="reading-aloud">Reading Aloud</button>
+        <button id="edit-rule">Edit Rules</button>
+        <button id="whole-story">Whole Story</button>
+        <!-- <button id="reading-aloud">Reading Aloud</button> -->
       </div>
       
     </main>
@@ -40,6 +41,7 @@
     const numberText = document.getElementById('number-text');
 
     const editRule = document.getElementById('edit-rule');
+    const wholeStory = document.getElementById('whole-story');
     const readingAloud = document.getElementById('reading-aloud');
 
     //localStorage.setItem('myCat', 'Tom');
@@ -60,7 +62,15 @@
       location.href = "/reading-aloud.html";
     }
 
+    async function showWholeStoryClick()
+    {
+      console.log("Reading Aloud Button Clicked");
+      localStorage.setItem('trainer', numberText.value);
+      location.href = "/whole.html";
+    }
+
     editRule.addEventListener('click', editRuleClick);
-    readingAloud.addEventListener('click', readingAloudClick);
+    wholeStory.addEventListener('click', showWholeStoryClick);
+    //readingAloud.addEventListener('click', readingAloudClick);
   </script>
 </html>
