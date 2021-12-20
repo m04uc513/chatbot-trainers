@@ -20,18 +20,13 @@
 .table1 td {
   border: 1px solid gray;
 }
-button {
-  border: none;
-  border-radius: 20px;
-  line-height: 24px;
-  padding: 0 8px;
-  background: #0099e4;
-  color: #fff;
-  cursor: pointer;
-}
 .select1 {
   width: 50px;
   font-size: 18px;
+}
+.btn1 {
+  display: block;
+  margin: 0 0 0 auto;
 }
   </style>
 <!-- from main.js of cr-vue/codes/turorial-todo -->
@@ -42,6 +37,7 @@ button {
 <body>
   <div id="app">
     <div>
+      <button id="save-button">保存</button>
       <select class="select1"
         v-model.number="section"
         v-on:change="handleSelect(section, $event)">
@@ -67,10 +63,12 @@ button {
         <option value="19">19</option>
       </select>
     </div>
+    <hr>
     <div>
       <H3>{{ story[section].subtitle }}</H3>
       <p>{{ story[section].paragraph }}</p>
     </div>
+    <hr>
     <div>
       <table class="table1">
         <tr>
@@ -81,7 +79,8 @@ button {
           <td width="90%" v-else>
             <input type="text" size="78" 
               v-bind:value="message[0]" 
-              v-on:blur="updateMessage($event)">
+              v-on:blur="updateMessage($event)"
+              ref="zero">
           </td>
         </tr>
       </table>
@@ -95,7 +94,8 @@ button {
           <td width="85%" v-else>
             <input type="text" size="74" 
               v-bind:value="message[1]" 
-              v-on:blur="updateMessage($event)">
+              v-on:blur="updateMessage($event)"
+              ref="one">
           </td>
         </tr>
         <tr>
@@ -106,7 +106,8 @@ button {
           <td width="85%" v-else>
             <input type="text" size="74" 
               v-bind:value="message[2]" 
-              v-on:blur="updateMessage($event)">
+              v-on:blur="updateMessage($event)"
+              ref="two">
         </tr>
         <tr>
           <th rowspan="2">2</th>
@@ -117,7 +118,8 @@ button {
           <td width="85%" v-else>
             <input type="text" size="74" 
               v-bind:value="message[3]" 
-              v-on:blur="updateMessage($event)">
+              v-on:blur="updateMessage($event)"
+              ref="three">
         </tr>
         <tr>
           <th>A</th>
@@ -127,7 +129,8 @@ button {
           <td width="85%" v-else>
             <input type="text" size="74" 
               v-bind:value="message[4]" 
-              v-on:blur="updateMessage($event)">
+              v-on:blur="updateMessage($event)"
+              ref="four">
         </tr>
         <tr>
           <th rowspan="2">3</th>
@@ -138,7 +141,8 @@ button {
           <td width="85%" v-else>
             <input type="text" size="74" 
               v-bind:value="message[5]" 
-              v-on:blur="updateMessage($event)">
+              v-on:blur="updateMessage($event)"
+              ref="five">
         </tr>
         <tr>
           <th>A</th>
@@ -148,7 +152,8 @@ button {
           <td width="85%" v-else>
             <input type="text" size="74" 
               v-bind:value="message[6]" 
-              v-on:blur="updateMessage($event)">
+              v-on:blur="updateMessage($event)"
+              ref="six">
         </tr>
       </table>
       <table class="table1">
@@ -160,9 +165,15 @@ button {
           <td width="90%" v-else>
             <input type="text" size="78" 
               v-bind:value="message[7]" 
-              v-on:blur="updateMessage($event)">
+              v-on:blur="updateMessage($event)" 
+              ref="seven">
         </tr>
       </table>
+    </div>
+    <hr>
+    <div>
+      <button id="play-all-button">全発話</button>
+      <button id="play-button">発話</button>
     </div>
   </div>
 </body>
@@ -181,15 +192,42 @@ button {
     },
     async mounted() {
       var args = { key: localStorage.getItem('trainer') };
-      var res = await this.fetchScript(args);
+      var res = await this.getScript(args);
       //console.log(JSON.stringify(res, null, 2));
-      if (res.message != 'success') return;
+      if (res.message != 'success') {
+        this.rules = [ {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, 
+                       {}, {}, {}, {}, {}, {}, {}, {}, {}, {} ];
+        return;
+      }
       this.rules = JSON.parse(res.response);
-      console.log("message: ");
-      console.log(this.message);
+
+      this.message[0] = '';
+      this.message[1] = '';
+      this.message[2] = '';
+      this.message[3] = '';
+      this.message[4] = '';
+      this.message[5] = '';
+      this.message[6] = '';
+      this.message[7] = '';
+      if (Object.keys(this.rules[1]).length > 0) {
+        if (this.rules[1].msg) {
+          this.message[0] = this.rules[1].msg;
+        }
+        if (this.rules[1].qap) {
+          this.message[1] = this.rules[1].qap[0].q;
+          this.message[2] = this.rules[1].qap[0].a;
+          this.message[3] = this.rules[1].qap[1].q;
+          this.message[4] = this.rules[1].qap[1].a;
+          this.message[5] = this.rules[1].qap[2].q;
+          this.message[6] = this.rules[1].qap[2].a;
+        }
+        if (this.rules[1].nca) {
+          this.message[7] = this.rules[1].nca;
+        }
+      }
     },
     methods: {
-      fetchScript: async function(data) {
+      getScript: async function(data) {
         const res = await fetch("/get", {
           method: 'POST',
           headers: {
@@ -200,21 +238,110 @@ button {
         const response = await res.json();
         return(response);
       },
-      handleSelect: function(sec, event) {
-        console.log("# handleSelect");
+      putScript: async function(names, value) {
+        console.log("key: "+names);
+        console.log("val: "+value);
+        var data = {
+          key: names,
+          val: value
+        };
+        const res = await fetch("/put", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+        const response = await res.json();
+        return(response);
+      },
+      handleSelect: async function(sec, event) {
+        //console.log("# handleSelect");
         //console.log("sec: "+sec);
-        console.log("section: "+this.section);
-        console.log("prevsec: "+this.prevsec);
+        //console.log("section: "+this.section);
+        //console.log("prevsec: "+this.prevsec);
+        var elm = {};
+        elm.msg = this.message[0];
+        elm.qap = [];
+        elm.qap.push({ q: this.message[1], a: this.message[2] });
+        elm.qap.push({ q: this.message[3], a: this.message[4] });
+        elm.qap.push({ q: this.message[5], a: this.message[6] });
+        elm.nca = this.message[7];
+
+        this.rules[this.prevsec] = elm;
+        /*
+        var res = await this.putScript(this.trainer, JSON.stringify(this.rules));
+        console.log(res);
+        */
+
+        this.message[0] = '';
+        this.message[1] = '';
+        this.message[2] = '';
+        this.message[3] = '';
+        this.message[4] = '';
+        this.message[5] = '';
+        this.message[6] = '';
+        this.message[7] = '';
+
+        if (Object.keys(this.rules[this.section]).length > 0) {
+          if (this.rules[this.section].msg) {
+            this.message[0] = this.rules[this.section].msg;
+          }
+          if (this.rules[this.section].qap) {
+            this.message[1] = this.rules[this.section].qap[0].q;
+            this.message[2] = this.rules[this.section].qap[0].a;
+            this.message[3] = this.rules[this.section].qap[1].q;
+            this.message[4] = this.rules[this.section].qap[1].a;
+            this.message[5] = this.rules[this.section].qap[2].q;
+            this.message[6] = this.rules[this.section].qap[2].a;
+          }
+          if (this.rules[this.section].nca) {
+            this.message[7] = this.rules[this.section].nca;
+          }
+        }
         this.prevsec = this.section;
       },
       inputMessage: function(id) {
-        console.log("# inputMessage");
-        console.log("id: "+id);
+        //console.log("# inputMessage");
+        //console.log("id: "+id);
         this.focus = id;
+        if (id == 0) {
+          this.$nextTick(() => {
+            this.$refs.zero.focus();
+          });
+        } else if (id == 1) {
+          this.$nextTick(() => {
+            this.$refs.one.focus();
+          });
+        } else if (id == 2) {
+          this.$nextTick(() => {
+            this.$refs.two.focus();
+          });
+        } else if (id == 3) {
+          this.$nextTick(() => {
+            this.$refs.three.focus();
+          });
+        } else if (id == 4) {
+          this.$nextTick(() => {
+            this.$refs.four.focus();
+          });
+        } else if (id == 5) {
+          this.$nextTick(() => {
+            this.$refs.five.focus();
+          });
+        } else if (id == 6) {
+          this.$nextTick(() => {
+            this.$refs.six.focus();
+          });
+        } else if (id == 7) {
+          this.$nextTick(() => {
+            this.$refs.seven.focus();
+          });
+        }
       },
       updateMessage: function(event) {
-        console.log("# updateMessage");
-        console.log(event.target.value);
+        //console.log("# updateMessage");
+        //console.log(event.target.value);
         this.message[this.focus] = event.target.value;
         this.focus = 8;
       }
