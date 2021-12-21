@@ -20,6 +20,10 @@
 .table1 td {
   border: 1px solid gray;
 }
+.table2 {
+  width: 100%;
+  border-collapse: separate;
+}
 .select1 {
   width: 50px;
   font-size: 18px;
@@ -173,9 +177,22 @@
     </div>
     <hr>
     <div>
-      <button id="play-all-button"
-        v-on:click="speakStory">ストーリー</button>
-      <!-- <button id="play-button">発話</button> -->
+      <table class="table2">
+        <tr>
+          <td width="10%">
+            <button id="play-button"
+            v-on:click="speakConversation">Go</button>    
+          </td>
+          <td width="90%">{{ MSG }}</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>
+            <input type="text" size="80" ref="ANS">
+          </td>
+        </tr>
+        <tr><td></td><td>{{ RPY }}</td></tr>
+      </table>
     </div>
   </div>
 </body>
@@ -186,13 +203,18 @@
       section: 1,
       prevsec: 1,
       focus: 8,
-      MSG: 'メッセージなし',
       message: ['', '', '', '', '', '', '', ''],
       trainer: localStorage.getItem('trainer'),
       story: Grimm021,
-      rules: []
+      rules: [],
+      MSG: '',
+      ANS: '',
+      RPY: '',
+      synth: null
     },
     async mounted() {
+      this.synth = window.speechSynthesis;
+
       var args = { key: localStorage.getItem('trainer') };
       var res = await this.getScript(args);
       //console.log(JSON.stringify(res, null, 2));
@@ -269,7 +291,6 @@
         elm.qap.push({ q: this.message[3], a: this.message[4] });
         elm.qap.push({ q: this.message[5], a: this.message[6] });
         elm.nca = this.message[7];
-
         this.rules[this.prevsec] = elm;
 
         this.message[0] = '';
@@ -297,38 +318,31 @@
             this.message[7] = this.rules[this.section].nca;
           }
         }
+        
         this.prevsec = this.section;
+
+        this.MSG = '';
+        this.ANS = '';
+        this.RPY = '';
       },
       handleSaveRules: async function() {
         //console.log("# handleSaveRules");
+        var elm = {};
+        elm.msg = this.message[0];
+        elm.qap = [];
+        elm.qap.push({ q: this.message[1], a: this.message[2] });
+        elm.qap.push({ q: this.message[3], a: this.message[4] });
+        elm.qap.push({ q: this.message[5], a: this.message[6] });
+        elm.nca = this.message[7];
+        this.rules[this.prevsec] = elm;
+        
         var res = await this.putScript(this.trainer, JSON.stringify(this.rules));
         //console.log(res);
       },
-      /*
-async function wrapper(){
-  var text = "sen ten ce one. sen ten ce two. sen ten ce three.";
-  var result = text.match( /[^\.!\?]+[\.!\?]+/g );
-  var ssu = new SpeechSynthesisUtterance();
-  for(var i = 0; i<result.length; i++){
-    sentence = result[i];
-    ssu.text = sentence;
-    await new Promise(function(resolve) {
-      ssu.onend = resolve;
-      window.speechSynthesis.speak(ssu);
-    });
-  }
-wrapper();
-      */
-      /*
-        var uttr = new SpeechSynthesisUtterance(mesg);
-        uttr.name = "Kyoko";
-        uttr.lang = "ja-JP";
-        uttr.rate = 0.8;
-        uttr.pitch = 1.2;
-      */
       speakStory: async function() {
         //console.log("recite: "+this.story[this.section].recite.length);
         var recite = this.story[this.section].recite;
+        var synth = this.synth;
         var uttr = new SpeechSynthesisUtterance();
         uttr.name = "Kyoko";
         uttr.lang = "ja-JP";
@@ -340,8 +354,33 @@ wrapper();
           uttr.text = sentence;
           await new Promise(function(resolve) {
             uttr.onend = resolve;
-            window.speechSynthesis.speak(uttr);
+            synth.speak(uttr);
           });
+        }
+      },
+      speakOneSentence: function(sentence) {
+        var synth = this.synth;
+        var uttr = new SpeechSynthesisUtterance();
+        uttr.lang = "ja-JP";
+        uttr.name = "Kyoko";
+        uttr.pitch = 0.6;
+        uttr.rate = 0.8;
+        uttr.text = sentence;
+        return(new Promise(function(resolve){
+          uttr.onend = resolve;
+          synth.speak(uttr);
+        }));
+      },
+      speakConversation: async function() {
+        this.MSG = '';
+        this.ANS = '';
+        this.RPY = '　';
+        if (this.message[0].length <= 0) {
+          this.MSG = "MSGがありません";
+          return;
+        } else {
+          this.MSG = this.message[0];
+          await this.speakOneSentence(this.message[0]);
         }
       },
       inputMessage: function(id) {
