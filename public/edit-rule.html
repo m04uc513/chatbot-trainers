@@ -397,9 +397,43 @@
       },
       speakAnswer: async function() {
         console.log("# speakAnswer");
-        console.log("Answer: "+this.Answer);
-        var answer = this.Answer;
-        console.log("answer: "+answer);
+        console.log("this.Answer: "+ this.Answer);
+
+        if (this.message[1].length > 0) {
+          if (this.Answer.indexOf(this.message[1]) >= 0) {
+            console.log("match '"+this.message[1]+"': reply "+this.message[2]);
+            this.RPY = this.message[2];
+            await this.speakOneSentence(this.message[2]);
+            return;
+          }
+        }
+
+        if (this.message[3].length > 0) {
+          if (this.Answer.indexOf(this.message[3]) >= 0) {
+            console.log("match '"+this.message[3]+"': reply "+this.message[4]);
+            this.RPY = this.message[4];
+            await this.speakOneSentence(this.message[4]);
+            return;
+          }
+        }
+
+        if (this.message[5].length > 0) {
+          if (this.Answer.indexOf(this.message[5]) >= 0) {
+            console.log("match '"+this.message[5]+"': reply "+this.message[6]);
+            this.RPY = this.message[6];
+            await this.speakOneSentence(this.message[6]);
+            return;
+          }
+        }
+
+        if (this.message[7].length <= 0) {
+          console.log("this.message[7] is empty");
+          //this.RPY = "NCAがありません";
+        } else {
+          console.log("no match: reply"+this.message[7]);
+          this.RPY = this.message[7];
+          await this.speakOneSentence(this.message[7]);
+        }
       },
       inputMessage: function(id) {
         //console.log("# inputMessage");
