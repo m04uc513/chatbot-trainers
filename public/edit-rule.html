@@ -25,7 +25,7 @@
   border-collapse: separate;
 }
 .select1 {
-  width: 50px;
+  width: 80px;
   font-size: 18px;
 }
 .btn1 {
@@ -186,9 +186,15 @@
           <td width="90%">{{ MSG }}</td>
         </tr>
         <tr>
-          <td></td>
           <td>
-            <input type="text" size="80" ref="ANS">
+            <button id="play-button"
+            v-on:click="speakAnswer">Ans</button>
+          </td>
+          <td>
+            <input type="text" size="80" 
+              v-bind:value="Answer" 
+              v-on:blur="setAnswer($event)" 
+              ref="ANS">
           </td>
         </tr>
         <tr><td></td><td>{{ RPY }}</td></tr>
@@ -208,7 +214,7 @@
       story: Grimm021,
       rules: [],
       MSG: '',
-      ANS: '',
+      Answer: '',
       RPY: '',
       synth: null
     },
@@ -318,11 +324,11 @@
             this.message[7] = this.rules[this.section].nca;
           }
         }
-        
+
         this.prevsec = this.section;
 
         this.MSG = '';
-        this.ANS = '';
+        this.Answer = '';
         this.RPY = '';
       },
       handleSaveRules: async function() {
@@ -363,7 +369,7 @@
         var uttr = new SpeechSynthesisUtterance();
         uttr.lang = "ja-JP";
         uttr.name = "Kyoko";
-        uttr.pitch = 0.6;
+        uttr.pitch = 0.7;
         uttr.rate = 0.8;
         uttr.text = sentence;
         return(new Promise(function(resolve){
@@ -373,7 +379,7 @@
       },
       speakConversation: async function() {
         this.MSG = '';
-        this.ANS = '';
+        this.Answer = '';
         this.RPY = '　';
         if (this.message[0].length <= 0) {
           this.MSG = "MSGがありません";
@@ -382,6 +388,18 @@
           this.MSG = this.message[0];
           await this.speakOneSentence(this.message[0]);
         }
+        this.$nextTick(() => {
+          this.$refs.ANS.focus();
+        });
+      },
+      setAnswer: function(event) {
+        this.Answer = event.target.value;
+      },
+      speakAnswer: async function() {
+        console.log("# speakAnswer");
+        console.log("Answer: "+this.Answer);
+        var answer = this.Answer;
+        console.log("answer: "+answer);
       },
       inputMessage: function(id) {
         //console.log("# inputMessage");
