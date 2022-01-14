@@ -3,80 +3,101 @@
 <head>
   <meta charset="utf-8">
   <title>Reading Aloud</title>
-  <!-- from main.css of cr-vue/codes/turorial-todo -->
-  <!--<link rel="stylesheet" href="./main.css">-->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="stylesheet" href="https://unpkg.com/botui/build/botui.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/botui/build/botui-theme-default.css" />
+  <meta name="description" content="GrimmBot: Story 021 (Cinderella)">
+  <meta name="description" content="A voice conversational UI built using BotUI.">
   <style type="text/css">
-* {
-  box-sizing: border-box;
-}
-#app {
-  max-width: 640px;
-  margin: 0 auto;
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-thead th {
-  border-bottom: 2px solid #0099e4; /*#d31c4a */
-  color: #0099e4;
-}
-th,
-th {
-  padding: 0 8px;
-  line-height: 40px;
-}
-thead th.id {
-  width: 50px;
-}
-thead th.state {
-  width: 100px;
-}
-thead th.button {
-  width: 60px;
-}
-tbody td.button, tbody td.state {
-  text-align: center;
-}
-tbody tr td,
-tbody tr th {
-  border-bottom: 1px solid #ccc;
-  transition: all 0.4s;
-}
-tbody tr.done td,
-tbody tr.done th {
-  background: #f8f8f8;
-  color: #bbb;
-}
-tbody tr:hover td,
-tbody tr:hover th {
-  background: #f4fbff;
-}
-button {
-  border: none;
-  border-radius: 20px;
-  line-height: 24px;
-  padding: 0 8px;
-  background: #0099e4;
-  color: #fff;
-  cursor: pointer;
-}
   </style>
 </head>
+<script src="/nGrimm021.js"></script>
 <body>
   <div id="app">
-  </div>
-  <header>
-    <h2>Reading Aloud</h2>
-  </header>
-  <main>
-    <p id="trainer-text"></p>
-  </main>  
+    <div id="header">
+      <p>{{ header }}</p>
+    </div>
+    <div class="botui-app-container" id="Story021">
+      <bot-ui></bot-ui>
+    </div>
+    <div id="footer">
+      <p>{{ footer }}</p>
+    </div>
+</div>
 </body>
-<!-- from main.js of cr-vue/codes/turorial-todo -->
-<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://cdn.jsdelivr.net/vue/latest/vue.min.js"></script>
 <script>
-  const trainerText = document.getElementById('trainer-text');
-  trainerText.innerHTML = localStorage.getItem("trainer");
+  var app = new Vue({
+    el: '#app',
+    data: {
+      header: "BookBot2 alpha version",
+      footer: "2022/01/13",
+      trainer: localStorage.getItem('trainer'),
+      story: Grimm021,
+      rules: ''
+    },
+    async mounted() {
+      var r = localStorage.getItem('rules');
+      if (r != null) {
+        this.rules = JSON.parse(r);
+        console.log("this.rules[0].title: "+this.rules[0].title);
+        this.header = "Trainer: "+this.trainer;
+        this.footer = "Rules: "+this.rules.length+" items";
+      }
+    },
+    methods: {
+    }
+  });
+</script>
+<script src="https://unpkg.com/botui/build/botui.js"></script>
+<script type="module">
+  const botui = new BotUI('Story021');
+  //console.log("trainer: "+localStorage.getItem('trainer'));
+
+  async function fetchScript(data) {
+    const res = await fetch("/get", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    const response = await res.json();
+    return(response);
+  }
+
+  async function main() {
+    var rules;
+    var args = { key: localStorage.getItem('trainer') };
+    var res = await fetchScript(args);
+    //console.log(JSON.stringify(res, null, 2));
+    if (res.message == 'success') {
+      localStorage.setItem('rules', res.response);
+      rules = JSON.parse(res.response);
+    }
+    console.log(rules);
+
+    await botui.message.bot("I'm BookBot2.");
+    await botui.message.human("This is echo back from you.");
+    await botui.message.bot(Grimm021[0].title);
+    for (var i = 1; i < 20; i++){
+      await botui.message.bot(Grimm021[i].subtitle);
+      await botui.message.human(JSON.stringify(rules[i]));
+    }
+    /*
+    var name;
+    await botui.message.add({content: 'Can you tell me your name?'})
+    await botui.action.text({
+      action: {
+        placeholder: 'Enter your name here'
+      }
+    }).then(function (res) {
+      console.log(res.value)
+      name = res.value
+    });
+    */
+  }
+
+  main();
 </script>
 </html>

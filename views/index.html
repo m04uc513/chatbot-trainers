@@ -6,9 +6,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="A cool thing made with Glitch">
+    <meta name="description" content="BookBot2 prototype">
 
-    <title>Welcome to Glitch!</title>
+    <title>BookBot2 prototype</title>
     <!-- import the webpage's stylesheet -->
     <!-- <link rel="stylesheet" href="/style.css"> -->
     <style>
@@ -32,7 +32,7 @@
       <div>
         <button id="edit-rule">Edit Rules</button>
         <button id="whole-story">Whole Story</button>
-        <!-- <button id="reading-aloud">Reading Aloud</button> -->
+        <button id="reading-aloud">Reading Aloud</button>
       </div>
       
     </main>
@@ -47,6 +47,13 @@
     //localStorage.setItem('myCat', 'Tom');
     //var cat = localStorage.getItem("myCat")
     //localStorage.removeItem("myCat");
+    
+    var trainer = localStorage.getItem('trainer');
+    if (trainer != null) {
+      numberText.value = trainer;
+    }
+    localStorage.removeItem('trainer');
+    localStorage.removeItem('rules');
 
     async function editRuleClick()
     {
@@ -71,6 +78,6 @@
 
     editRule.addEventListener('click', editRuleClick);
     wholeStory.addEventListener('click', showWholeStoryClick);
-    //readingAloud.addEventListener('click', readingAloudClick);
+    readingAloud.addEventListener('click', readingAloudClick);
   </script>
 </html>
