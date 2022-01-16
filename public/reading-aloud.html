@@ -66,6 +66,22 @@
     return(response);
   }
 
+  function speakSentence(sentence) {
+    var synth = window.speechSynthesis;
+    var uttr = new SpeechSynthesisUtterance();
+    uttr.lang = "ja-JP";
+    uttr.name = "Kyoko";
+    //uttr.pitch = 0.7;
+    //uttr.rate = 0.8;
+    uttr.rate = 0.8;
+    uttr.pitch = 1.2;
+    uttr.text = sentence;
+    return(new Promise(function(resolve){
+      uttr.onend = resolve;
+      synth.speak(uttr);
+    }));
+  }
+
   async function main() {
     var rules;
     var args = { key: localStorage.getItem('trainer') };
@@ -75,14 +91,59 @@
       localStorage.setItem('rules', res.response);
       rules = JSON.parse(res.response);
     }
-    console.log(rules);
 
-    await botui.message.bot("I'm BookBot2.");
-    await botui.message.human("This is echo back from you.");
+    // タイトルコール
     await botui.message.bot(Grimm021[0].title);
+    await speakSentence(Grimm021[0].title);
+
+    // 段落ごと
     for (var i = 1; i < 20; i++){
-      await botui.message.bot(Grimm021[i].subtitle);
-      await botui.message.human(JSON.stringify(rules[i]));
+      var res;
+      await botui.message.bot(Grimm021[i].paragraph);
+      for (var j = 0; j < Grimm021[i].recite.length; j++) {
+        await speakSentence(Grimm021[i].recite[j]);
+      }
+      if (rules[i].msg && rules[i].msg.length > 0) {
+        //console.log("msg:"+rules[i].msg);
+        await botui.message.bot(rules[i].msg);
+        await speakSentence(rules[i].msg);
+      
+        if (rules[i].qap[0].q.length > 0 ||  
+            rules[i].nca.length > 0) {
+          res = await botui.action.text({
+                        action: {
+                          placeholder: '返事をしてください'
+                        }
+                      });
+          var answer = res.value;
+          var reply = '';
+          if (rules[i].qap[0].q.length > 0) {
+            if (answer.indexOf(rules[i].qap[0].q) >= 0) {
+              reply = rules[i].qap[0].a;
+            } else if (rules[i].qap[1].q.length > 0) {
+              if (answer.indexOf(rules[i].qap[1].q) >= 0) {
+                reply = rules[i].qap[1].a;
+              } else if (rules[i].qap[2].q.length > 0) {
+                if (answer.indexOf(rules[i].qap[2].q) >= 0) {
+                  reply = rules[i].qap[2].a;
+                }
+              }
+            }
+          }
+          if (reply == '') {
+            reply = rules[i].nca;
+          }
+          if (reply != '') {
+            await botui.message.bot(reply);
+            await speakSentence(reply);
+          }
+        }
+      }
+      res = await botui.action.button({
+                    action: [
+                      { text: '続ける', value: 'ok' }
+                    ]
+                  });
     }
     /*
     var name;

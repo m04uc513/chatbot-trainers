@@ -74,11 +74,6 @@ button {
       <H4>トレーナー：{{ trainer }}</H4>  
     </div>
     <hr>
-<!--
-    <H3>　１．{{ story[1].subtitle }}</H3>
-    <p>{{ story[1].paragraph }}</p>
-    <pre>{{ JSON.stringify(rules[1], null, 2)</pre>
--->
     <div  v-for="id in 19">
       <H3>{{ id }}. {{ story[id].subtitle }}</H3>
       <p>{{ story[id].paragraph }}</p>
