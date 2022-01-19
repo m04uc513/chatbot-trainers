@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>Reading Aloud</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="stylesheet" href="https://unpkg.com/botui/build/botui.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/botui/build/botui-theme-default.css" />
+  <meta name="description" content="GrimmBot: Story 021 (Cinderella)">
+  <meta name="description" content="A voice conversational UI built using BotUI.">
+  <style type="text/css">
+  </style>
+</head>
+<script src="/nGrimm021.js"></script>
+<body>
+  <div id="app">
+    <div id="header">
+      <p>{{ header }}</p>
+    </div>
+    <div class="botui-app-container" id="Story021">
+      <bot-ui></bot-ui>
+    </div>
+    <div id="footer">
+      <p>{{ footer }}</p>
+    </div>
+</div>
+</body>
+<script src="https://cdn.jsdelivr.net/vue/latest/vue.min.js"></script>
+<script>
+  var app = new Vue({
+    el: '#app',
+    data: {
+      header: "BookBot2 alpha version",
+      footer: "2022/01/13",
+      trainer: localStorage.getItem('trainer'),
+      story: Grimm021,
+      rules: ''
+    },
+    async mounted() {
+      var r = localStorage.getItem('rules');
+      if (r != null) {
+        this.rules = JSON.parse(r);
+        console.log("this.rules[0].title: "+this.rules[0].title);
+        this.header = "Trainer: "+this.trainer;
+        this.footer = "Rules: "+this.rules.length+" items";
+      }
+    },
+    methods: {
+    }
+  });
+</script>
+<script src="https://unpkg.com/botui/build/botui.js"></script>
+<script type="module">
+  const botui = new BotUI('Story021');
+  //console.log("trainer: "+localStorage.getItem('trainer'));
+
+  async function fetchScript(data) {
+    const res = await fetch("/get", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    const response = await res.json();
+    return(response);
+  }
+
+  function speakSentence(sentence) {
+    var synth = window.speechSynthesis;
+    var uttr = new SpeechSynthesisUtterance();
+    uttr.lang = "ja-JP";
+    uttr.name = "Kyoko";
+    //uttr.pitch = 0.7;
+    //uttr.rate = 0.8;
+    uttr.rate = 0.8;
+    uttr.pitch = 1.2;
+    uttr.text = sentence;
+    return(new Promise(function(resolve){
+      uttr.onend = resolve;
+      synth.speak(uttr);
+    }));
+  }
+
+  async function main() {
+    var rules;
+    var args = { key: localStorage.getItem('trainer') };
+    var res = await fetchScript(args);
+    //console.log(JSON.stringify(res, null, 2));
+    if (res.message == 'success') {
+      localStorage.setItem('rules', res.response);
+      rules = JSON.parse(res.response);
+    }
+
+    // タイトルコール
+    await botui.message.bot(Grimm021[0].title);
+    await speakSentence(Grimm021[0].title);
+
+    // 段落ごと
+    for (var i = 1; i < 20; i++){
+      var res;
+      await botui.message.bot(Grimm021[i].paragraph);
+      for (var j = 0; j < Grimm021[i].recite.length; j++) {
+        await speakSentence(Grimm021[i].recite[j]);
+      }
+      if (rules[i].msg && rules[i].msg.length > 0) {
+        //console.log("msg:"+rules[i].msg);
+        await botui.message.bot(rules[i].msg);
+        await speakSentence(rules[i].msg);
+      
+        if (rules[i].qap[0].q.length > 0 ||  
+            rules[i].nca.length > 0) {
+          res = await botui.action.text({
+                        action: {
+                          placeholder: '返事をしてください'
+                        }
+                      });
+          var answer = res.value;
+          var reply = '';
+          if (rules[i].qap[0].q.length > 0) {
+            if (answer.indexOf(rules[i].qap[0].q) >= 0) {
+              reply = rules[i].qap[0].a;
+            } else if (rules[i].qap[1].q.length > 0) {
+              if (answer.indexOf(rules[i].qap[1].q) >= 0) {
+                reply = rules[i].qap[1].a;
+              } else if (rules[i].qap[2].q.length > 0) {
+                if (answer.indexOf(rules[i].qap[2].q) >= 0) {
+                  reply = rules[i].qap[2].a;
+                }
+              }
+            }
+          }
+          if (reply == '') {
+            reply = rules[i].nca;
+          }
+          if (reply != '') {
+            await botui.message.bot(reply);
+            await speakSentence(reply);
+          }
+        }
+      }
+      res = await botui.action.button({
+                    action: [
+                      { text: '続ける', value: 'ok' }
+                    ]
+                  });
+    }
+    /*
+    var name;
+    await botui.message.add({content: 'Can you tell me your name?'})
+    await botui.action.text({
+      action: {
+        placeholder: 'Enter your name here'
+      }
+    }).then(function (res) {
+      console.log(res.value)
+      name = res.value
+    });
+    */
+  }
+
+  main();
+</script>
+</html>

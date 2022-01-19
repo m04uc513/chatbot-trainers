@@ -33,6 +33,7 @@
         <button id="edit-rule">Edit Rules</button>
         <button id="whole-story">Whole Story</button>
         <button id="reading-aloud">Reading Aloud</button>
+        <button id="with-botui">with BotUI</button>
       </div>
       
     </main>
@@ -43,6 +44,7 @@
     const editRule = document.getElementById('edit-rule');
     const wholeStory = document.getElementById('whole-story');
     const readingAloud = document.getElementById('reading-aloud');
+    const withBotUI = document.getElementById('with-botui');
 
     //localStorage.setItem('myCat', 'Tom');
     //var cat = localStorage.getItem("myCat")
@@ -76,8 +78,16 @@
       location.href = "/whole.html";
     }
 
+    async function withBotUIClick()
+    {
+      console.log("Reading with BotUI Button Clicked");
+      localStorage.setItem('trainer', numberText.value);
+      location.href = "/reading-with-botui.html";
+    }
+
     editRule.addEventListener('click', editRuleClick);
     wholeStory.addEventListener('click', showWholeStoryClick);
     readingAloud.addEventListener('click', readingAloudClick);
+    withBotUI.addEventListener('click', withBotUIClick);
   </script>
 </html>
