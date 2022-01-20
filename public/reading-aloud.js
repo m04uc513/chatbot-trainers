@@ -9,6 +9,7 @@ var app = new Vue({
     story: Grimm021,
     rules: '',
     current: -1,
+    speeking: false,
     synth: null
   },
   async mounted() {
@@ -30,8 +31,7 @@ var app = new Vue({
 
     initBotUI();
 
-    this.current = 0;
-    this.readParagraph();
+    this.showTop();
   },
   methods: {
     getScript: async function(data) {
@@ -45,7 +45,7 @@ var app = new Vue({
       const response = await res.json();
       return(response);
     },
-    speakSentence: function (sentence) {
+    speekSentence: function (sentence) {
       var synth = this.synth;
       var uttr = new SpeechSynthesisUtterance();
       uttr.lang = "ja-JP";
@@ -60,47 +60,57 @@ var app = new Vue({
         synth.speak(uttr);
       }));
     },
+    speekCancel: function () {
+      var synth = this.synth;
+      return(new Promise(function(resolve){
+        for(var i = 0; synth.pending || synth.speaking; i++) {
+          synth.cancel();
+          console.log("# speekCancel: "+i);
+        }
+        resolve(0);
+      }));
+    },
     botMessage: function(msg) {
       var obj = {
         content: msg
       };
       return(putMessage(obj));
     },
-    /*
-    readingTop: async function() {
-      // タイトルコール
-      //await botui.message.bot(Grimm021[0].title);
-      //await putMessage(this.story[0].title);
+    showTop: async function() {
+      this.current = 0;
+      // タイトルコール  
       await this.botMessage(this.story[0].title);
-      console.log("Bot: "+this.story[0].title);
-      await this.speakSentence(this.story[0].title);
-      this.current++;
+      await this.speekSentence(this.story[0].title);
     },
-    */
-    readParagraph: async function() {
-      if (this.current == 0) {
-        // タイトルコール
-        //console.log("Bot: "+this.story[0].title);
-        //await botui.message.bot(Grimm021[0].title);
-        //await putMessage(this.story[0].title);
-        await this.botMessage(this.story[0].title);
-        await this.speakSentence(this.story[0].title);
-        this.current++;
-      } else {
-        // 段落
-        var i = this.current;
-        //console.log("Bot: "+this.story[i].paragraph);
-        //await botui.message.bot(Grimm021[i].paragraph);
-        //await putMessage(this.story[i].paragraph);
-        await this.botMessage(this.story[i].paragraph);
-        for (var j = 0; j < this.story[i].recite.length; j++) {
-          await this.speakSentence(this.story[i].recite[j]);
-        }
-        this.current++;
-        if (this.current >= this.story.length) {
-          this.current = 0;
-        }
+    speekParagraph: async function() {
+      var para = this.current;
+      this.speeking = true;
+      for (var i = 0; i < this.story[para].recite.length; i++) {
+        if (!this.speeking) break;
+        await this.speekSentence(this.story[para].recite[i]);
       }
+      this.speeking = false;
+      return new Promise((resolve, reject) => {
+        resolve(i);
+      });
+    },
+    stopParagraph: function() {
+      this.speeking = false;
+      this.speekCancel();
+    },
+    showParagraph: async function() {
+      this.speeking = false;
+      await this.speekCancel();
+
+      this.current++;
+      if (this.current >= this.story.length) {
+        this.current = 1;
+      }
+      // 段落
+      var i = this.current;
+      console.log("# "+this.current+"  "+this.story[i].subtitle);
+      await this.botMessage(this.story[i].paragraph);
+      await this.speekParagraph();
     }
   }
 });
