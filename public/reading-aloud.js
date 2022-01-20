@@ -25,7 +25,6 @@ var app = new Vue({
     this.rules = JSON.parse(res.response);
     this.current = 0;
 
-    console.log("this.rules[0].title: "+this.rules[0].title);
     this.header = "Trainer: "+this.trainer;
     this.footer = "Rules: "+this.rules.length+" items";
 
@@ -61,28 +60,39 @@ var app = new Vue({
         synth.speak(uttr);
       }));
     },
+    botMessage: function(msg) {
+      var obj = {
+        content: msg
+      };
+      return(putMessage(obj));
+    },
+    /*
     readingTop: async function() {
       // タイトルコール
       //await botui.message.bot(Grimm021[0].title);
-      await putMessage(this.story[0].title);
+      //await putMessage(this.story[0].title);
+      await this.botMessage(this.story[0].title);
       console.log("Bot: "+this.story[0].title);
       await this.speakSentence(this.story[0].title);
       this.current++;
     },
+    */
     readParagraph: async function() {
       if (this.current == 0) {
         // タイトルコール
+        //console.log("Bot: "+this.story[0].title);
         //await botui.message.bot(Grimm021[0].title);
-        await putMessage(this.story[0].title);
-        console.log("Bot: "+this.story[0].title);
+        //await putMessage(this.story[0].title);
+        await this.botMessage(this.story[0].title);
         await this.speakSentence(this.story[0].title);
         this.current++;
       } else {
         // 段落
-        //await botui.message.bot(Grimm021[i].paragraph);
         var i = this.current;
-        console.log("Bot: "+this.story[i].paragraph);
-        await putMessage(this.story[i].paragraph);
+        //console.log("Bot: "+this.story[i].paragraph);
+        //await botui.message.bot(Grimm021[i].paragraph);
+        //await putMessage(this.story[i].paragraph);
+        await this.botMessage(this.story[i].paragraph);
         for (var j = 0; j < this.story[i].recite.length; j++) {
           await this.speakSentence(this.story[i].recite[j]);
         }

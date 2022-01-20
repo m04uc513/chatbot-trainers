@@ -5,7 +5,7 @@ function initBotUI() {
 }
 
 function putMessage(arg) {
-  botui.message.add(arg);
+  return(botui.message.add(arg));
 }
 
 export { initBotUI, putMessage };
