@@ -8,7 +8,9 @@ var app = new Vue({
     trainer: localStorage.getItem('trainer'),
     story: Grimm021,
     rules: '',
+    mode: 0,
     current: -1,
+    answer: '',
     speeking: false,
     synth: null
   },
@@ -65,7 +67,7 @@ var app = new Vue({
       return(new Promise(function(resolve){
         for(var i = 0; synth.pending || synth.speaking; i++) {
           synth.cancel();
-          console.log("# speekCancel: "+i);
+          //console.log("# speekCancel: "+i);
         }
         resolve(0);
       }));
@@ -76,7 +78,15 @@ var app = new Vue({
       };
       return(putMessage(obj));
     },
+    humanMessage: function(msg) {
+      var obj = {
+        human: true,
+        content: msg
+      }
+      return(putMessage(obj));
+    },
     showTop: async function() {
+      console.log("# showTop");
       this.current = 0;
       // タイトルコール  
       await this.botMessage(this.story[0].title);
@@ -99,18 +109,94 @@ var app = new Vue({
       this.speekCancel();
     },
     showParagraph: async function() {
+      this.mode = 1;  // Footer Mode === 1
+
+      // キャッシュされている読み上げテキストの消去
       this.speeking = false;
       await this.speekCancel();
 
+      // 次の段落へ
       this.current++;
-      if (this.current >= this.story.length) {
-        this.current = 1;
+      if (this.current < this.story.length) {
+        // 段落の表示・読み上げ
+        var i = this.current;
+        console.log("# "+i+"  "+this.story[i].subtitle);
+        console.log("# showParagraph");
+        await this.botMessage(this.story[i].paragraph);
+        await this.speekParagraph();
+      } else {        
+        console.log("# End of Story");
+        const msgs = [
+          '物語は終わりです',
+          'もう一度最初から繰り返したいときは「次へ」「続ける」と押してください。'
+        ];
+        for (var i = 0; i < msgs.length; i++) {
+          await this.botMessage(msgs[i]);
+          await this.speekSentence(msgs[i]);  
+        }
+        this.current = 0;
       }
-      // 段落
+    },
+    showQuestion: async function() {
+      this.mode = 2;  // Footer Mode === 2
+
+      // キャッシュされている読み上げテキストの消去
+      this.speeking = false;
+      await this.speekCancel();
+
+      console.log("# showQuestion");
+      this.$refs.ANS.focus();
       var i = this.current;
-      console.log("# "+this.current+"  "+this.story[i].subtitle);
-      await this.botMessage(this.story[i].paragraph);
-      await this.speekParagraph();
+      var rules = this.rules;
+      if (rules[i].msg && rules[i].msg.length > 0) {
+        //this.$refs.ANS.blur();
+        await this.botMessage(rules[i].msg);
+        await this.speekSentence(rules[i].msg);
+      } else {
+        //this.$refs.ANS.blur();
+        this.showNoQuestion();
+      }
+    },
+    showNoQuestion: async function() {
+      this.mode = 0;  // Footer Mode === 0
+      console.log("# showNoQuestion");
+    },
+    showAnswer: async function() {
+      this.mode = 0;  // Footer Mode === 0
+      console.log("# showAnswer");
+      if (this.answer.length > 0) {
+        console.log("anser: "+this.answer);
+        await this.humanMessage(this.answer);
+        await this.speekSentence(this.answer);
+
+        // ルールによる応答文の選択
+        var rules = this.rules;
+        var i = this.current;
+        var answer = this.answer;
+        var reply = '';
+        if (rules[i].qap[0].q.length > 0) {
+          if (answer.indexOf(rules[i].qap[0].q) >= 0) {
+           reply = rules[i].qap[0].a;
+          } else if (rules[i].qap[1].q.length > 0) {
+            if (answer.indexOf(rules[i].qap[1].q) >= 0) {
+              reply = rules[i].qap[1].a;
+            } else if (rules[i].qap[2].q.length > 0) {
+              if (answer.indexOf(rules[i].qap[2].q) >= 0) {
+                reply = rules[i].qap[2].a;
+              }
+            }
+          }
+        }
+        if (reply == '') {
+          reply = rules[i].nca;
+        }
+        console.log("reply: "+reply);
+        if (reply != '') {
+          await this.botMessage(reply);
+          await this.speekSentence(reply);
+        }
+        this.answer = '';
+      }
     }
   }
 });

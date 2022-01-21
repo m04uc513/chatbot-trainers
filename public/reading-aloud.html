@@ -20,13 +20,23 @@
     <div class="botui-app-container" id="AAA">
       <bot-ui></bot-ui>
     </div>
-    <div id="footer">
-      <button id="continue-button"
-        v-on:click="showParagraph">続ける</button>
+    <div v-if="mode === 2" id="footer">
+      <button id="answer-button"
+        v-on:click="showAnswer">回答</button>
+      <input type="text" size="40"
+        v-model="answer" ref="ANS">
+    </div>
+    <div v-else-if="mode === 1" id="footer">
+      <button id="next-button"
+        v-on:click="showQuestion">次へ</button>
       <button id="stop-button"
         v-on:click="stopParagraph">発話停止</button>
       <button id="reply-button"
         v-on:click="speekParagraph">再発話</button>
+    </div>
+    <div v-else id="footer">
+      <button id="continue-button"
+        v-on:click="showParagraph">続ける</button>
     </div>
 </div>
 </body>
