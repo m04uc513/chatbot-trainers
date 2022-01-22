@@ -50,8 +50,8 @@ var app = new Vue({
     speekSentence: function (sentence) {
       var synth = this.synth;
       var uttr = new SpeechSynthesisUtterance();
-      uttr.lang = "ja-JP";
-      uttr.name = "Kyoko";
+      //uttr.lang = "ja-JP";
+      //uttr.name = "Kyoko";
       //uttr.pitch = 0.7;
       //uttr.rate = 0.8;
       uttr.rate = 0.8;
