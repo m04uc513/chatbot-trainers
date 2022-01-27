@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>Reading Aloud</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="stylesheet" href="https://unpkg.com/botui/build/botui.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/botui/build/botui-theme-default.css" />
+  <meta name="description" content="GrimmBot: Story 021 (Cinderella)">
+  <meta name="description" content="A voice conversational UI built using BotUI.">
+  <style type="text/css">
+  </style>
+</head>
+<script src="/nGrimm021.js"></script>
+<body>
+  <div id="app">
+    <div id="header">
+      <p>{{ header }} {{ footer }}</p>
+    </div>
+    <div class="botui-app-container">
+    </div>
+    <div id="footer">
+      <button id="continue-button">続ける</button>
+    </div>
+</div>
+</body>
+<script src="https://cdn.jsdelivr.net/vue/latest/vue.min.js"></script>
+<script>
+var app = new Vue({
+  el: '#app',
+  data: {
+    header: "BookBot2 alpha version",
+    footer: "2022/01/13",
+    trainer: localStorage.getItem('trainer'),
+    story: Grimm021,
+    rules: '',
+    mode: 0,
+    current: -1,
+    answer: '',
+    speeking: false
+  },
+  async mounted() {
+    var args = { key: localStorage.getItem('trainer') };
+    var res = await this.getScript(args);
+    //console.log(JSON.stringify(res, null, 2));
+    if (res.message != 'success') {
+      this.rules = [ {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, 
+                     {}, {}, {}, {}, {}, {}, {}, {}, {}, {} ];
+    }
+    localStorage.setItem('rules', res.response);
+    this.rules = JSON.parse(res.response);
+    this.current = 0;
+
+    this.header = "Trainer: "+this.trainer;
+    this.footer = "Rules: "+this.rules.length+" items";
+
+    console.log(JSON.stringify(this.rules, null, 2));
+  },
+  methods: {
+    getScript: async function(data) {
+      const res = await fetch("/get", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      const response = await res.json();
+      return(response);
+    },
+  }
+});
+</script>
+</html>

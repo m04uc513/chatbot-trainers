@@ -34,6 +34,7 @@
         <button id="whole-story">Whole Story</button>
         <button id="reading-aloud">Reading Aloud</button>
         <!--<button id="with-botui">with BotUI</button>-->
+        <button id="edit-json">Edit JSON</button>
       </div>
       
     </main>
@@ -45,6 +46,7 @@
     const wholeStory = document.getElementById('whole-story');
     const readingAloud = document.getElementById('reading-aloud');
     //const withBotUI = document.getElementById('with-botui');
+    const editJSON = document.getElementById('edit-json');
 
     //localStorage.setItem('myCat', 'Tom');
     //var cat = localStorage.getItem("myCat")
@@ -85,9 +87,17 @@
       location.href = "/reading-with-botui.html";
     }
 */
+    async function editJSONClick()
+    {
+      console.log("Edit Rules with JSON format");
+      localStorage.setItem('trainer', numberText.value);
+      location.href = "/edit-json.html";
+    }
+
     editRule.addEventListener('click', editRuleClick);
     wholeStory.addEventListener('click', showWholeStoryClick);
     readingAloud.addEventListener('click', readingAloudClick);
     //withBotUI.addEventListener('click', withBotUIClick);
+    editJSON.addEventListener('click', editJSONClick);
   </script>
 </html>

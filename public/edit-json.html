@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>Reading Aloud</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="stylesheet" href="https://unpkg.com/botui/build/botui.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/botui/build/botui-theme-default.css" />
+  <meta name="description" content="GrimmBot: Story 021 (Cinderella)">
+  <meta name="description" content="A voice conversational UI built using BotUI.">
+  <style type="text/css">
+textarea {
+  font-size: 14pt;
+}
+  </style>
+</head>
+<script src="/nGrimm021.js"></script>
+<body>
+  <div id="app">
+    <div id="header">
+      <p>{{ header }}</p>
+    </div>
+    <div>
+<!--  <textarea id="json-field" cols="80" rows="20"></textarea>  -->
+      <textarea v-model="json"  cols="70" rows="18"></textarea>
+    </div>
+    <div id="footer">
+      <button id="get-button" v-on:click="getRules">GET</button>
+      <button id="put-button" v-on:click="putRules">PUT</button>
+  </div>
+</div>
+</body>
+<script src="https://cdn.jsdelivr.net/vue/latest/vue.min.js"></script>
+<script>
+var app = new Vue({
+  el: '#app',
+  data: {
+    header: "BookBot2 alpha version",
+    footer: "2022/01/13",
+    trainer: localStorage.getItem('trainer'),
+    rules: '',
+    json: ''
+  },
+  async mounted() {
+    var args = { key: localStorage.getItem('trainer') };
+    var res = await this.getScript(args);
+    if (res.message != 'success') {
+      this.rules = [ {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, 
+                     {}, {}, {}, {}, {}, {}, {}, {}, {}, {} ];
+    }
+    localStorage.setItem('rules', res.response);
+    this.rules = JSON.parse(res.response);
+    this.header = "Trainer: "+this.trainer;
+    this.json = JSON.stringify(this.rules, null, 2);
+    //console.log(JSON.stringify(this.rules, null, 2));
+  },
+  methods: {
+    getScript: async function(data) {
+      const res = await fetch("/get", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      const response = await res.json();
+      return(response);
+    },
+    putScript: async function(data) {
+      const res = await fetch("/put", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      const response = await res.json();
+      return(response);
+    },
+    getRules: async function() {
+      console.log("### getRules");
+      var args = { key: localStorage.getItem('trainer') };
+      var res = await this.getScript(args);
+      if (res.message != 'success') {
+        console.log(`message  ${res.message}`);
+        return;
+      }
+      localStorage.setItem('rules', res.response);
+      this.rules = JSON.parse(res.response);
+      this.header = "Trainer: "+this.trainer;
+      this.json = JSON.stringify(this.rules, null, 2);
+      //console.log(JSON.stringify(this.rules, null, 2));
+    },
+    putRules: async function() {
+      console.log("### putRules");
+      this.rules = JSON.stringify(JSON.parse(this.json));
+      var args = {
+        key: this.trainer,
+        val: this.rules
+      };
+      var res = await this.putScript(args);
+      console.log(`message  ${res.message}`);
+    }
+  }
+});
+</script>
+</html>
